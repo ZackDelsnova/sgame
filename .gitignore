@@ -39,3 +39,29 @@
 
 # debug information files
 *.dwo
+
+# --- Visual Studio IDE files ---
+.vs/
+*.vcxproj*
+*.vcxproj.filters
+*.sln
+
+# --- CMake build folders ---
+build/
+Build/
+out/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# --- Project binaries ---
+*.exe
+*.dll
+*.pdb
+*.lib
+*.exp
+
+# --- Ignore external prebuilt libraries ---
+external/*/lib/*
+external/*/bin/*
