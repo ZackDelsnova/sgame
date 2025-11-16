@@ -63,5 +63,6 @@ Makefile
 *.exp
 
 # --- Ignore external prebuilt libraries ---
+external/*/include/*
 external/*/lib/*
 external/*/bin/*
