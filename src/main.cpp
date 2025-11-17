@@ -1,5 +1,9 @@
-#include <raylib.h>
+#include "AllyUnit.h"
+#include "BaseEntity.h"
 #include "CameraController.h"
+#include "EnemyUnit.h"
+#include <raylib.h>
+#include <vector>
 
 int main() {
 	const int screenWidth = 1280;
@@ -16,6 +20,12 @@ int main() {
 
 	// moveable object
 	Vector3 objectPos = { 0, 1, 0 };
+
+	std::vector<BaseEntity*> entities;
+
+	// test unit
+	entities.push_back(new AllyUnit({ 2, 0.5f, 0 }));
+	entities.push_back(new EnemyUnit({ -2, 0.5f, 0 }));
 
 	while (!WindowShouldClose()) {
 
@@ -37,8 +47,16 @@ int main() {
 
 		BeginDrawing();
 		ClearBackground(SKYBLUE);
+
+		for (auto& entity : entities) {
+			entity->Update(dt);
+		}
 		
 		BeginMode3D(cameraCtrl.camera);
+
+		for (auto& entity : entities) {
+			entity->Draw();
+		}
 
 		// semi infinite ground plane
 		if (toggleGrid) DrawGrid(2000, 1.0f);
