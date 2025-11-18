@@ -2,6 +2,14 @@
 #include <raylib.h>
 #include <vector>
 
+struct CubeObject {
+	Vector3 position;
+	Color color;
+	float size;
+};
+
+bool CheckCollision(CubeObject obj1, CubeObject obj2);
+
 int main() {
 	const int screenWidth = 1280;
 	const int screenHeight = 720;
@@ -16,7 +24,8 @@ int main() {
 	bool toggleGrid = false;
 
 	// moveable object
-	Vector3 objectPos = { 0, 1, 0 };
+	CubeObject cube1 = { { 0, 1, 0 }, RED, 1 };
+	CubeObject cube2 = { { 2, 1, 0 }, BLUE, 1 };
 
 	while (!WindowShouldClose()) {
 
@@ -29,10 +38,15 @@ int main() {
 		cameraCtrl.Update(dt);
 
 		// move objects with arrow key
-		if (IsKeyDown(KEY_UP)) objectPos.z -= 5 * dt;
-		if (IsKeyDown(KEY_DOWN)) objectPos.z += 5 * dt;
-		if (IsKeyDown(KEY_LEFT)) objectPos.x -= 5 * dt;
-		if (IsKeyDown(KEY_RIGHT)) objectPos.x += 5 * dt;
+		if (IsKeyDown(KEY_UP)) cube1.position.z -= 5 * dt;
+		if (IsKeyDown(KEY_DOWN)) cube1.position.z += 5 * dt;
+		if (IsKeyDown(KEY_LEFT)) cube1.position.x -= 5 * dt;
+		if (IsKeyDown(KEY_RIGHT)) cube1.position.x += 5 * dt;
+
+		if (IsKeyDown(KEY_ONE)) cube2.position.z -= 5 * dt;
+		if (IsKeyDown(KEY_TWO)) cube2.position.z += 5 * dt;
+		if (IsKeyDown(KEY_THREE)) cube2.position.x -= 5 * dt;
+		if (IsKeyDown(KEY_FOUR)) cube2.position.x += 5 * dt;
 
 		if (IsKeyPressed(KEY_G)) toggleGrid = !toggleGrid;
 
@@ -54,17 +68,31 @@ int main() {
 		DrawLine3D({ 0, 0, 0 }, { 0, 0, 2 }, BLUE);  // Z axis
 
 		// moveable cube
-		DrawCube(objectPos, 1, 1, 1, ORANGE);
-		DrawCubeWires(objectPos, 1, 1, 1, BROWN);
+		DrawCube(cube1.position, cube1.size, cube1.size, cube1.size, cube1.color);
+		DrawCube(cube2.position, cube2.size, cube2.size, cube2.size, cube2.color);
 
 		EndMode3D();
 
 		DrawText(cameraCtrl.mouseCaptured ? "Mouse: LOCKED (ESC to unlock)" : "Mouse: FREE (ESC to lock)", 10, 40, 20, DARKGRAY);
 		DrawText(cameraCtrl.GetCompassDirection().c_str(), 10, 70, 20, DARKGRAY);
+		if (CheckCollision(cube1, cube2)) {
+			DrawText("COLLISION!", 10, 100, 20, RED);
+		}
 		DrawFPS(10, 10);
 		EndDrawing();
 	}
 
 	CloseWindow();
 	return 0;
+}
+
+bool CheckCollision(CubeObject obj1, CubeObject obj2) {
+	BoundingBox box1 = { { obj1.position.x - obj1.size / 2, obj1.position.y - obj1.size / 2, obj1.position.z - obj1.size / 2 },
+						 { obj1.position.x + obj1.size / 2, obj1.position.y + obj1.size / 2, obj1.position.z + obj1.size / 2 } };
+	BoundingBox box2 = { { obj2.position.x - obj2.size / 2, obj2.position.y - obj2.size / 2, obj2.position.z - obj2.size / 2 },
+						 { obj2.position.x + obj2.size / 2, obj2.position.y + obj2.size / 2, obj2.position.z + obj2.size / 2 } };
+	if (CheckCollisionBoxes(box1, box2)) {
+		return true;
+	}
+	return false;
 }
