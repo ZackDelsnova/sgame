@@ -10,6 +10,8 @@ public:
 	Vector3 size = { 1, 1, 1 };
 	BoundingBox box;
 	
+	float vVelocity = 0.0f;
+
 	CubeObject(Vector3 pos, Color col, Vector3 s) {
 		position = pos;
 		color = col;
@@ -30,6 +32,50 @@ public:
 	void Draw() {
 		DrawCubeV(position, size, color);
 	}
+
+	void ApplyGrayity(float dt) {
+		const float gravity = -9.81f;
+		
+		vVelocity += gravity * dt;
+		position.y += vVelocity * dt;
+
+		if (position.y < size.y / 2) {
+			position.y = size.y / 2;
+			vVelocity = 0.0f;
+		}
+
+		UpdateBoundingBox();
+	}
+
+	void ResolveCollision(CubeObject& other) {
+		if (!CheckCollisionBoxes(box, other.box)) {
+			return;
+		}
+
+		float dx1 = other.box.max.x - box.min.x; // overlap on x from other to this
+		float dx2 = box.max.x - other.box.min.x; // overlap on x from this to other
+		float dy1 = other.box.max.y - box.min.y; // overlap on y from other to this
+		float dy2 = box.max.y - other.box.min.y; // overlap on y from this to other
+		float dz1 = other.box.max.z - box.min.z; // overlap on z from other to this
+		float dz2 = box.max.z - other.box.min.z; // overlap on z from this to other
+
+		float minX = (dx1 < dx2) ? dx1 : -dx2;
+		float minY = (dy1 < dy2) ? dy1 : -dy2;
+		float minZ = (dz1 < dz2) ? dz1 : -dz2;
+
+		if (fabs(minX) < fabs(minY) && fabs(minX) < fabs(minZ)) {
+			move({ minX, 0, 0 });
+		}
+		else if (fabs(minY) < fabs(minX) && fabs(minY) < fabs(minZ)) {
+			move({ 0, minY, 0 });
+			vVelocity = 0.0f; // reset vertical velocity on Y collision
+		}
+		else {
+			move({ 0, 0, minZ });
+		}
+
+		UpdateBoundingBox();
+	}
 };
 
 bool CheckCollision(CubeObject cube1, CubeObject cube2) {
@@ -37,6 +83,14 @@ bool CheckCollision(CubeObject cube1, CubeObject cube2) {
 		return true;
 	}
 	return false;
+}
+
+Vector3 NormalizeOrZero(Vector3 v) {
+	float l = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+	if (l > 0.00001f) {
+		return Vector3Scale(v, 1.0f / l);
+	}
+	return { 0, 0, 0 };
 }
 
 int main() {
@@ -52,13 +106,13 @@ int main() {
 
 	bool toggleGrid = false;
 
+	CubeObject floorCube({ 0, -0.5f, 0 }, DARKGREEN, { 2000, 1, 2000 });
+
 	// moveable object
-	CubeObject cube1({ 0, 0.5f, 0 }, RED, { 1, 1, 1 });
-	CubeObject cube2({ 0, 0.5f, 2 }, BLUE, { 1, 1, 1});
+	CubeObject cube1({ 0, 10, 0 }, RED, { 1, 1, 1 });
+	CubeObject cube2({ 0, 10, 2 }, BLUE, { 1, 1, 1});
 
 	Color collisionColor = YELLOW;
-
-	
 
 	while (!WindowShouldClose()) {
 
@@ -76,6 +130,7 @@ int main() {
 		if (IsKeyDown(KEY_DOWN)) input1.z += 1;
 		if (IsKeyDown(KEY_LEFT)) input1.x -= 1;
 		if (IsKeyDown(KEY_RIGHT)) input1.x += 1;
+		input1 = NormalizeOrZero(input1);
 		cube1.move(Vector3Scale(input1, 5 * dt));
 
 		Vector3 input2 = { 0, 0, 0 };
@@ -83,6 +138,7 @@ int main() {
 		if (IsKeyDown(KEY_TWO)) input2.z += 1;
 		if (IsKeyDown(KEY_THREE)) input2.x -= 1;
 		if (IsKeyDown(KEY_FOUR)) input2.x += 1;
+		input2 = NormalizeOrZero(input2);
 		cube2.move(Vector3Scale(input2, 5 * dt));
 
 		if (IsKeyPressed(KEY_G)) toggleGrid = !toggleGrid;
@@ -94,7 +150,7 @@ int main() {
 
 		// semi infinite ground plane
 		if (toggleGrid) DrawGrid(2000, 1.0f);
-		DrawCube({ 0, -0.5f, 0 }, 2000, 1, 2000, DARKGREEN);
+		floorCube.Draw();
 
 		// simple sky (fake sky)
 		DrawSphere({ 0, -1000, 0 }, 980.0f, Fade(SKYBLUE, 0.4f)); // horizon glow
@@ -106,8 +162,12 @@ int main() {
 
 		// moveable cube
 		cube1.Draw();
+		cube1.ApplyGrayity(dt);
+		cube1.ResolveCollision(cube2);
 		DrawBoundingBox(cube1.box, collisionColor);
 		cube2.Draw();
+		cube2.ApplyGrayity(dt);
+		cube2.ResolveCollision(cube1);
 		DrawBoundingBox(cube2.box, collisionColor);
 
 		EndMode3D();
