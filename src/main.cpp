@@ -1,14 +1,43 @@
 #include "CameraController.h"
 #include <raylib.h>
+#include <raymath.h>
 #include <vector>
 
-struct CubeObject {
-	Vector3 position;
-	Color color;
-	float size;
+class CubeObject {
+public:
+	Vector3 position = { 0, 0.5f, 0 };
+	Color color = RAYWHITE;
+	Vector3 size = { 1, 1, 1 };
+	BoundingBox box;
+	
+	CubeObject(Vector3 pos, Color col, Vector3 s) {
+		position = pos;
+		color = col;
+		size = s;
+		UpdateBoundingBox();
+	}
+	
+	void UpdateBoundingBox() {
+		box.max = { position.x + size.x / 2, position.y + size.y / 2, position.z + size.z / 2 };
+		box.min = { position.x - size.x / 2, position.y - size.y / 2, position.z - size.z / 2 };
+	}
+
+	void move(Vector3 delta) {
+		position = Vector3Add(position, delta);
+		UpdateBoundingBox();
+	}
+
+	void Draw() {
+		DrawCubeV(position, size, color);
+	}
 };
 
-bool CheckCollision(CubeObject obj1, CubeObject obj2);
+bool CheckCollision(CubeObject cube1, CubeObject cube2) {
+	if (CheckCollisionBoxes(cube1.box, cube2.box)) {
+		return true;
+	}
+	return false;
+}
 
 int main() {
 	const int screenWidth = 1280;
@@ -24,8 +53,12 @@ int main() {
 	bool toggleGrid = false;
 
 	// moveable object
-	CubeObject cube1 = { { 0, 1, 0 }, RED, 1 };
-	CubeObject cube2 = { { 2, 1, 0 }, BLUE, 1 };
+	CubeObject cube1({ 0, 0.5f, 0 }, RED, { 1, 1, 1 });
+	CubeObject cube2({ 0, 0.5f, 2 }, BLUE, { 1, 1, 1});
+
+	Color collisionColor = YELLOW;
+
+	
 
 	while (!WindowShouldClose()) {
 
@@ -38,15 +71,19 @@ int main() {
 		cameraCtrl.Update(dt);
 
 		// move objects with arrow key
-		if (IsKeyDown(KEY_UP)) cube1.position.z -= 5 * dt;
-		if (IsKeyDown(KEY_DOWN)) cube1.position.z += 5 * dt;
-		if (IsKeyDown(KEY_LEFT)) cube1.position.x -= 5 * dt;
-		if (IsKeyDown(KEY_RIGHT)) cube1.position.x += 5 * dt;
+		Vector3 input1 = { 0, 0, 0 };
+		if (IsKeyDown(KEY_UP)) input1.z -= 1 ;
+		if (IsKeyDown(KEY_DOWN)) input1.z += 1;
+		if (IsKeyDown(KEY_LEFT)) input1.x -= 1;
+		if (IsKeyDown(KEY_RIGHT)) input1.x += 1;
+		cube1.move(Vector3Scale(input1, 5 * dt));
 
-		if (IsKeyDown(KEY_ONE)) cube2.position.z -= 5 * dt;
-		if (IsKeyDown(KEY_TWO)) cube2.position.z += 5 * dt;
-		if (IsKeyDown(KEY_THREE)) cube2.position.x -= 5 * dt;
-		if (IsKeyDown(KEY_FOUR)) cube2.position.x += 5 * dt;
+		Vector3 input2 = { 0, 0, 0 };
+		if (IsKeyDown(KEY_ONE)) input2.z -= 1;
+		if (IsKeyDown(KEY_TWO)) input2.z += 1;
+		if (IsKeyDown(KEY_THREE)) input2.x -= 1;
+		if (IsKeyDown(KEY_FOUR)) input2.x += 1;
+		cube2.move(Vector3Scale(input2, 5 * dt));
 
 		if (IsKeyPressed(KEY_G)) toggleGrid = !toggleGrid;
 
@@ -68,8 +105,10 @@ int main() {
 		DrawLine3D({ 0, 0, 0 }, { 0, 0, 2 }, BLUE);  // Z axis
 
 		// moveable cube
-		DrawCube(cube1.position, cube1.size, cube1.size, cube1.size, cube1.color);
-		DrawCube(cube2.position, cube2.size, cube2.size, cube2.size, cube2.color);
+		cube1.Draw();
+		DrawBoundingBox(cube1.box, collisionColor);
+		cube2.Draw();
+		DrawBoundingBox(cube2.box, collisionColor);
 
 		EndMode3D();
 
@@ -77,6 +116,10 @@ int main() {
 		DrawText(cameraCtrl.GetCompassDirection().c_str(), 10, 70, 20, DARKGRAY);
 		if (CheckCollision(cube1, cube2)) {
 			DrawText("COLLISION!", 10, 100, 20, RED);
+			collisionColor = RED;
+		}
+		else {
+			collisionColor = YELLOW;
 		}
 		DrawFPS(10, 10);
 		EndDrawing();
@@ -84,15 +127,4 @@ int main() {
 
 	CloseWindow();
 	return 0;
-}
-
-bool CheckCollision(CubeObject obj1, CubeObject obj2) {
-	BoundingBox box1 = { { obj1.position.x - obj1.size / 2, obj1.position.y - obj1.size / 2, obj1.position.z - obj1.size / 2 },
-						 { obj1.position.x + obj1.size / 2, obj1.position.y + obj1.size / 2, obj1.position.z + obj1.size / 2 } };
-	BoundingBox box2 = { { obj2.position.x - obj2.size / 2, obj2.position.y - obj2.size / 2, obj2.position.z - obj2.size / 2 },
-						 { obj2.position.x + obj2.size / 2, obj2.position.y + obj2.size / 2, obj2.position.z + obj2.size / 2 } };
-	if (CheckCollisionBoxes(box1, box2)) {
-		return true;
-	}
-	return false;
 }
