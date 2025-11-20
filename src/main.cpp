@@ -1,5 +1,5 @@
 #include "CameraController.h"
-#include "Body.h"
+#include "StaticBody.h"
 
 #include <raylib.h>
 #include <raymath.h>
@@ -24,7 +24,7 @@ int main() {
 
 	CameraController cameraCtrl;
 
-	Body testBody({ 0, 1, 0 }, { 1, 1, 1 }, RED);
+	StaticBody floorBody({ 0.0f, -0.5f, 0.0f }, { 2000, 1, 2000 }, DARKGREEN);
 
 	bool toggleGrid = false;
 
@@ -56,8 +56,7 @@ int main() {
 		DrawLine3D({ 0, 0, 0 }, { 0, 2, 0 }, GREEN); // Y axis
 		DrawLine3D({ 0, 0, 0 }, { 0, 0, 2 }, BLUE);  // Z axis
 
-		testBody.Update(dt);
-		testBody.Draw();
+		floorBody.Draw();
 
 		EndMode3D();
 
