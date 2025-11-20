@@ -18,6 +18,8 @@ void CubeObject::Move(Vector3 delta) {
 }
 
 void CubeObject::ApplyGravity(float dt) {
+	if (!useGravity) return;
+
 	const float gravity = -9.81f;
 	
 	vVelocity += gravity * dt;
@@ -38,14 +40,16 @@ void CubeObject::Update(float dt) {
 
 void CubeObject::Draw() const {
 	DrawCubeV(position, size, color);
-	DrawBoundingBox(box, YELLOW);
+	DrawBoundingBox(box, debugColor);
 }
 
 void CubeObject::ResolveCollision(const CubeObject& other) {
 	if (!CheckCollisionBoxes(box, other.box)) {
+		debugColor = YELLOW;
 		return;
 	}
 
+	debugColor = RED;
 	// Calculate overlap on each axis
 	float overlapX1 = other.box.max.x - box.min.x;
 	float overlapX2 = box.max.x - other.box.min.x;

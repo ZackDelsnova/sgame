@@ -28,6 +28,7 @@ int main() {
 
 	// floor
 	CubeObject floorCube({ 0, -0.5f, 0 }, DARKGREEN, { 2000, 1, 2000 });
+	floorCube.useGravity = false;
 
 	// cube 1 controlled with arrow keys
 	CubeObject cube1({ 0, 10, 0 }, RED, { 1, 1, 1 });
@@ -79,6 +80,7 @@ int main() {
 		cube1.ResolveCollision(floorCube);
 		cube2.ResolveCollision(floorCube);
 		cube1.ResolveCollision(cube2);
+		cube2.ResolveCollision(cube1);
 
 		EndMode3D();
 

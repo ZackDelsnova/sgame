@@ -7,10 +7,12 @@ public:
 	Vector3 position;
 	Vector3 size;
 	Color color;
+	Color debugColor = YELLOW;
 
 	BoundingBox box;
 
 	float vVelocity = 0.0f; // vertical velocity for gravity
+	bool useGravity = true;
 
 	CubeObject(Vector3 pos, Color col, Vector3 s);
 	
