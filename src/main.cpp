@@ -1,5 +1,6 @@
 #include "CameraController.h"
 #include "StaticBody.h"
+#include "DynamicBody.h"
 
 #include <raylib.h>
 #include <raymath.h>
@@ -25,6 +26,7 @@ int main() {
 	CameraController cameraCtrl;
 
 	StaticBody floorBody({ 0.0f, -0.5f, 0.0f }, { 2000, 1, 2000 }, DARKGREEN);
+	DynamicBody boxBody({ 0.0f, 10.0f, 0.0f }, { 1, 1, 1 }, ORANGE);
 
 	bool toggleGrid = false;
 
@@ -57,6 +59,7 @@ int main() {
 		DrawLine3D({ 0, 0, 0 }, { 0, 0, 2 }, BLUE);  // Z axis
 
 		floorBody.Draw();
+		boxBody.Update(dt);
 
 		EndMode3D();
 
