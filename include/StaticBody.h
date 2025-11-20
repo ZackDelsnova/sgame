@@ -3,11 +3,7 @@
 
 class StaticBody : public Body {
 public:
-	StaticBody(Vector3 pos, Vector3 s, Color col)
-		: Body(pos, s, col) {}
+	StaticBody(Vector3 pos, Vector3 s, Color col);
 
-	void Update(float dt) override {
-		dt = dt;
-		// StaticBody does not move
-	}
+	void Update(float dt) override;
 };
