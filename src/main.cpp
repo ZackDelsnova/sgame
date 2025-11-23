@@ -19,7 +19,6 @@ int main() {
 
 	World world;
 	world.Init();
-	DynamicBody boxBody({ 0.0f, 10.0f, 0.0f }, { 1, 1, 1 }, ORANGE);
 
 	while (!WindowShouldClose()) {
 
@@ -36,8 +35,8 @@ int main() {
 		
 		BeginMode3D(cameraCtrl.camera);
 
-		world.UpdateAndDraw(dt);
-		boxBody.Update(dt);
+		world.Update(dt);
+		world.Draw();
 
 		EndMode3D();
 

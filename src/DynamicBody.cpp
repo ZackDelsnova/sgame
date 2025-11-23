@@ -10,12 +10,6 @@ void DynamicBody::ApplyGravity(float dt) {
 	const float gravity = -9.81f;
 	vVelocity += gravity * dt;
 	position.y += vVelocity * dt;
-
-	if (position.y - size.y / 2.0f < 0.0f) {
-		position.y = size.y / 2.0f;
-		vVelocity = 0.0f;
-	}
-
 	UpdateBoundingBox();
 }
 

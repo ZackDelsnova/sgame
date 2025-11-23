@@ -8,8 +8,11 @@ public:
 	Vector3 size;
 	Color color;
 	BoundingBox box;
+	Color debugColor = YELLOW;
 
 	Body(Vector3 pos, Vector3 s, Color col);
+
+	virtual ~Body() = default;
 	
 	virtual void Update(float dt);
 	virtual void Draw() const;

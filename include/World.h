@@ -1,11 +1,16 @@
 #pragma once
-#include "StaticBody.h"
 #include <vector>
+#include <memory>
+#include "StaticBody.h"
+#include "DynamicBody.h"
 
 class World {
 public:
-	std::vector<StaticBody> worldObjects;
-
 	void Init();
-	void UpdateAndDraw(float dt);
+	void Update(float dt);
+	void Draw();
+
+private:
+	std::vector<std::unique_ptr<StaticBody>> staticObjects;
+	std::vector<std::unique_ptr<DynamicBody>> dynamicObjects;
 };

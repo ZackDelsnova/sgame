@@ -1,22 +1,44 @@
 #include "World.h"
 
 void World::Init() {
-	StaticBody floorBody({ 0.0f, -0.5f, 0.0f }, { 2000, 1, 2000 }, DARKGREEN);
-	worldObjects.push_back(floorBody);
+	
+	staticObjects.push_back(
+		std::make_unique<StaticBody>(
+			Vector3{ 0, -0.5f, 0 },
+			Vector3{ 2000, 1, 2000},
+			DARKGREEN
+		) // floor
+	);
+
+	dynamicObjects.push_back(
+		std::make_unique<DynamicBody>(
+			Vector3{ 0, 10, 0},
+			Vector3{ 1, 1, 1},
+			ORANGE
+		) // test object
+	);
 }
 
-void World::UpdateAndDraw(float dt) {
-	dt = dt;
-	// simple sky (fake sky)
-	DrawSphere({ 0, -1000, 0 }, 980.0f, Fade(SKYBLUE, 0.4f)); // horizon glow
+void World::Update(float dt) {
+	// update dynamic bodies
+	for (auto& dyn : dynamicObjects) {
+		dyn->Update(dt);
 
-	// debug xyz axis
-	DrawLine3D({ 0, 0, 0 }, { 2, 0, 0 }, RED);   // X axis)
-	DrawLine3D({ 0, 0, 0 }, { 0, 2, 0 }, GREEN); // Y axis
-	DrawLine3D({ 0, 0, 0 }, { 0, 0, 2 }, BLUE);  // Z axis
+		// resolve collision
+		for (auto& st : staticObjects) {
+			dyn->ResolveCollision(*st);
+		}
+	}
+}
 
-	// draw all static bodies/non movable stuff
-	for (auto& obj : worldObjects) {
-		obj.Draw();
+void World::Draw() {
+
+	// static
+	for (auto& st : staticObjects) {
+		st->Draw();
+	}
+
+	for (auto& dyn : dynamicObjects) {
+		dyn->Draw();
 	}
 }
