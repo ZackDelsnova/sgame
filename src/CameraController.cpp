@@ -21,7 +21,6 @@ CameraController::CameraController() {
 	camera.projection = CAMERA_PERSPECTIVE;
 
 	mouseCaptured = true;
-	DisableCursor();
 }
 
 void CameraController::ToggleMouse() {
