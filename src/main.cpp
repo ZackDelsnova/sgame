@@ -1,18 +1,10 @@
 #include "CameraController.h"
-#include "StaticBody.h"
 #include "DynamicBody.h"
+#include "World.h"
 
 #include <raylib.h>
 #include <raymath.h>
 #include <vector>
-
-Vector3 NormalizeOrZero(Vector3 v) {
-	float l = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
-	if (l > 0.00001f) {
-		return Vector3Scale(v, 1.0f / l);
-	}
-	return { 0, 0, 0 };
-}
 
 int main() {
 	const int screenWidth = 1280;
@@ -25,10 +17,9 @@ int main() {
 
 	CameraController cameraCtrl;
 
-	StaticBody floorBody({ 0.0f, -0.5f, 0.0f }, { 2000, 1, 2000 }, DARKGREEN);
+	World world;
+	world.Init();
 	DynamicBody boxBody({ 0.0f, 10.0f, 0.0f }, { 1, 1, 1 }, ORANGE);
-
-	bool toggleGrid = false;
 
 	while (!WindowShouldClose()) {
 
@@ -40,25 +31,12 @@ int main() {
 
 		cameraCtrl.Update(dt);
 
-		if (IsKeyPressed(KEY_G)) toggleGrid = !toggleGrid;
-
 		BeginDrawing();
 		ClearBackground(SKYBLUE);
 		
 		BeginMode3D(cameraCtrl.camera);
 
-		// semi infinite ground plane
-		if (toggleGrid) DrawGrid(2000, 1.0f);
-
-		// simple sky (fake sky)
-		DrawSphere({ 0, -1000, 0 }, 980.0f, Fade(SKYBLUE, 0.4f)); // horizon glow
-
-		// debug xyz axis
-		DrawLine3D({ 0, 0, 0 }, { 2, 0, 0 }, RED);   // X axis)
-		DrawLine3D({ 0, 0, 0 }, { 0, 2, 0 }, GREEN); // Y axis
-		DrawLine3D({ 0, 0, 0 }, { 0, 0, 2 }, BLUE);  // Z axis
-
-		floorBody.Draw();
+		world.UpdateAndDraw(dt);
 		boxBody.Update(dt);
 
 		EndMode3D();

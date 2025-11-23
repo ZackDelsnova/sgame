@@ -73,8 +73,8 @@ void CameraController::Update(float dt) {
 		if (IsKeyDown(KEY_S)) targetVel = Vector3Add(targetVel, Vector3Negate(forward));
 		if (IsKeyDown(KEY_A)) targetVel = Vector3Add(targetVel, Vector3Negate(right));
 		if (IsKeyDown(KEY_D)) targetVel = Vector3Add(targetVel, right);
-		if (IsKeyDown(KEY_Q) || IsKeyDown(KEY_LEFT_CONTROL)) targetVel = Vector3Add(targetVel, Vector3Negate(up));
-		if (IsKeyDown(KEY_E) || IsKeyDown(KEY_SPACE)) targetVel = Vector3Add(targetVel, up);
+		if (IsKeyDown(KEY_LEFT_CONTROL)) targetVel = Vector3Add(targetVel, Vector3Negate(up));
+		if (IsKeyDown(KEY_SPACE)) targetVel = Vector3Add(targetVel, up);
 		
 		if (Vector3Length(targetVel) > 0.01f) {
 			targetVel = Vector3Normalize(targetVel);
