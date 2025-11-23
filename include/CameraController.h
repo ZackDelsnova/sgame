@@ -26,6 +26,5 @@ public:
 	void Update(float dt);
 	void LockMouse();
 	void UnlockMouse();
-	void ToggleMouse();
 	std::string GetCompassDirection() const;
 };

@@ -23,12 +23,6 @@ CameraController::CameraController() {
 	mouseCaptured = true;
 }
 
-void CameraController::ToggleMouse() {
-	mouseCaptured = !mouseCaptured;
-	if (mouseCaptured) DisableCursor();
-	else EnableCursor();
-}
-
 void CameraController::LockMouse() {
 	mouseCaptured = true;
 	DisableCursor();
