@@ -86,12 +86,6 @@ int main() {
 		}
 
 		float dt = GetFrameTime();
-		
-		/*
-		if (IsKeyPressed(KEY_ESCAPE)) {
-			cameraCtrl.ToggleMouse();
-		}
-		*/
 
 		BeginDrawing();
 
