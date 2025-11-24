@@ -106,19 +106,39 @@ int main() {
 		} break;
 
 		case STATE_GAME: {
+			int cx = GetScreenWidth() / 2;
+			int cy = GetScreenHeight() / 2;
+
 			ClearBackground(SKYBLUE);
 
 			cameraCtrl.Update(dt);
 
 			BeginMode3D(cameraCtrl.camera);
 
+			if (IsKeyPressed(KEY_ONE)) {
+				world.SpawnAlly(cameraCtrl.camera);
+			}
+			if (IsKeyPressed(KEY_TWO)) {
+				world.SpawnEnemy(cameraCtrl.camera);
+			}
+			if (IsKeyPressed(KEY_THREE)) {
+				world.KillUnitInFront(cameraCtrl.camera);
+			}
+		
+
 			world.Update(dt, cameraCtrl.camera);
 			world.Draw();
 
 			EndMode3D();
 
-			DrawText(cameraCtrl.GetCompassDirection().c_str(), 10, 40, 20, DARKGRAY);
+			// cross air
+			DrawLine(cx - 10, cy, cx + 10, cy, BLACK);
+			DrawLine(cx, cy - 10, cx, cy + 10, BLACK);
+
 			DrawFPS(10, 10);
+			DrawText(cameraCtrl.GetCompassDirection().c_str(), 10, 40, 20, DARKGRAY);
+			DrawText(world.GetUnitCount().c_str(), 10, 70, 20, DARKGRAY);
+
 		} break;
 			
 		case STATE_PAUSE: {
@@ -132,6 +152,10 @@ int main() {
 			if (Button(Rectangle{ 300, 330, 200, 50 }, "Bact to Menu")) {
 				currentState = STATE_MENU;
 			}
+
+			DrawText("1 - Spawn Ally (Blue cube)", 550, 250, 30, RAYWHITE);
+			DrawText("2 - Spawn Enemy (Red cube)", 550, 350, 30, RAYWHITE);
+			DrawText("3 - Kill Units (any ally and enemy)", 550, 450, 30, RAYWHITE);
 		} break;
 		}
 		EndDrawing();

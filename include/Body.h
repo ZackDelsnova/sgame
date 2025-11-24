@@ -10,6 +10,8 @@ public:
 	BoundingBox box;
 	Color borderColor = YELLOW;
 
+	bool isGround = false;
+
 	Body(Vector3 pos, Vector3 s, Color col);
 
 	virtual ~Body() = default;

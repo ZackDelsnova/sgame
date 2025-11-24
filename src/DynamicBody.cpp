@@ -44,18 +44,25 @@ void DynamicBody::ResolveCollision(const Body& other) {
 	float absY = fabsf(resolveY);
 	float absZ = fabsf(resolveZ);
 
+	bool isGround_ = other.isGround;
+
+	// for small y axis overlap, prevent stacking
+	if (!isGround_ && absY < 0.1f) {
+		absY = 99999.0f;
+	}
+
 	if (absX < absY && absX < absZ) {
-		// resolve on X axis
 		position.x += resolveX;
-	} else if (absY < absX && absY < absZ) {
-		// resolve on Y axis
-		position.y += resolveY;
-		if (resolveY > 0) {
-			vVelocity = 0.0f; // stop downward velocity on ground collision
-		}
-	} else {
-		// resolve on Z axis
+	}
+	else if (absZ < absX && absZ < absY) {
 		position.z += resolveZ;
+	}
+	else {
+		position.y += resolveY;
+
+		if (resolveY > 0) {
+			vVelocity = 0.0f; // landed on ground
+		}
 	}
 
 	UpdateBoundingBox();
