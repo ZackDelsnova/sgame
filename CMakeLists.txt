@@ -23,7 +23,7 @@ link_directories(${RAYLIB_LIB_DIR})
 # src file
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.cpp)
 
-add_executable(sgame ${SRC_FILES})
+add_executable(sgame WIN32 ${SRC_FILES})
 
 # raylib and windows libs
 target_link_libraries(sgame raylib
