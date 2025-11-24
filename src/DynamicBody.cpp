@@ -15,21 +15,17 @@ void DynamicBody::ApplyGravity(float dt) {
 
 void DynamicBody::Update(float dt) {
 	ApplyGravity(dt);
-	Draw();
 }
 
 void DynamicBody::Draw() const {
 	Body::Draw();
-	DrawBoundingBox(box, debugColor);
 }
 
 void DynamicBody::ResolveCollision(const Body& other) {
 	if (!CheckCollisionBoxes(box, other.box)) {
-		debugColor = YELLOW;
 		return;
 	}
 
-	debugColor = RED;
 	// calculate overlap on each axis
 	float overlapX1 = other.box.max.x - box.min.x;
 	float overlapX2 = box.max.x - other.box.min.x;

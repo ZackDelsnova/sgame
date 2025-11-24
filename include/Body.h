@@ -8,7 +8,7 @@ public:
 	Vector3 size;
 	Color color;
 	BoundingBox box;
-	Color debugColor = YELLOW;
+	Color borderColor = YELLOW;
 
 	Body(Vector3 pos, Vector3 s, Color col);
 

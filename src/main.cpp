@@ -112,13 +112,12 @@ int main() {
 
 			BeginMode3D(cameraCtrl.camera);
 
-			world.Update(dt);
+			world.Update(dt, cameraCtrl.camera);
 			world.Draw();
 
 			EndMode3D();
 
-			DrawText(cameraCtrl.mouseCaptured ? "Mouse: LOCKED (ESC to unlock)" : "Mouse: FREE (ESC to lock)", 10, 40, 20, DARKGRAY);
-			DrawText(cameraCtrl.GetCompassDirection().c_str(), 10, 70, 20, DARKGRAY);
+			DrawText(cameraCtrl.GetCompassDirection().c_str(), 10, 40, 20, DARKGRAY);
 			DrawFPS(10, 10);
 		} break;
 			

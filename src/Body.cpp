@@ -27,4 +27,5 @@ void Body::Update(float dt) {
 
 void Body::Draw() const {
 	DrawCubeV(position, size, color);
+	DrawBoundingBox(box, borderColor);
 }
