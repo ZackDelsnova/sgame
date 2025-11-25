@@ -8,9 +8,17 @@ This project focuses on gameplay-first development, clean code structure, and le
 - Basic window + rendering loop  
 - CMake-based build system  
 - Cross-platform (Windows/Linux)  
-- Simple entity structure (coming soon)  
-- Basic player/god-controller (coming soon)  
+- Simple entity structure  
+- Basic player/god-controller 
 - Bullet-hell simulation prototype (planned)
+
+## Release
+
+### [Latest Release](https://github.com/ZackDelsnova/sgame/releases)
+
+### **1. Download the zip folder from the `Latest Release`**
+
+### **2. Run the `.exe` file** 
 
 ## 🛠 Requirements
 
