@@ -13,16 +13,20 @@ enum class UnitState {
 class Unit : public DynamicBody {
 public:
 	// stats
+	float maxHP = 100.0f;
 	float hp = 100.0f;
+
 	float moveSpeed = 5.0f;
+	
 	float attack = 10.0f;
 	float attackRange = 2.0f;
-	float attackCooldown = 1.0f;
+	float attackCooldown = 0.6f;
 	float attackTimer = 0.0f;
+	
 	int team = 0; // temp team allocation 0 - ally, 1 - enemy
 
 	// movement
-	Vector3 targetPoint = Vector3{ 0,0,0 };
+	Vector3 targetPoint = { 0.0f,0.0f, 0.0f };
 	Body* targetBody = nullptr;
 	UnitState state = UnitState::Idle;
 

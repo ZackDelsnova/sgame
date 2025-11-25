@@ -81,10 +81,66 @@ void World::Update(float dt, Camera3D& cam) {
 			e->ResolveCollision(*a); // optional, but safer
 		}
 	}
+
+	// ally attack enemy
+	for (auto& a : allies) {
+		if (!a->isAlive()) continue;
+
+		for (auto& e : enemies) {
+			if (!e->isAlive()) continue;
+
+			// distance check
+			float dx = a->position.x - e->position.x;
+			float dy = a->position.y - e->position.y;
+			float dz = a->position.z - e->position.z;
+
+			float distSq = dx * dx + dy * dy + dz * dz;
+
+			if (distSq < (a->attackRange * a->attackRange)) {
+				a->Attack(e.get());
+			}
+		}
+	}
+
+	// enemy attack ally
+	for (auto& e : enemies) {
+		if (!e->isAlive()) continue;
+
+		for (auto& a : allies) {
+			if (!a->isAlive()) continue;
+
+			float dx = e->position.x - a->position.x;
+			float dy = e->position.y - a->position.y;
+			float dz = e->position.z - a->position.z;
+
+			float distSq = dx * dx + dy * dy + dz * dz;
+
+			if (distSq < (e->attackRange * e->attackRange)) {
+				e->Attack(a.get());
+			}
+		}
+	}
+
+	// remove if dead
+	allies.erase(
+		std::remove_if(allies.begin(), allies.end(),
+			[](const auto& u) { return !u->isAlive(); }),
+		allies.end()
+	);
+
+	enemies.erase(
+		std::remove_if(enemies.begin(), enemies.end(),
+			[](const auto& u) { return !u->isAlive(); }),
+		enemies.end()
+	);
+
+	allUnits.clear();
+	allUnits.reserve(allies.size() + enemies.size());
+	for (auto& a : allies)  allUnits.push_back(a.get());
+	for (auto& e : enemies) allUnits.push_back(e.get());
 }
 
 void World::Draw() {
-
 	// static
 	for (auto& st : staticObjects) {
 		st->Draw();
@@ -119,6 +175,7 @@ void World::SpawnAlly(Camera3D& cam) {
 	}
 
 	auto u = std::make_unique<AllyUnit>(spawnPos, Vector3{ 1,1,1 }, BLUE);
+	u->team = 0;
 	allUnits.push_back(u.get());
 	allies.push_back(std::move(u));
 }
@@ -136,6 +193,7 @@ void World::SpawnEnemy(Camera3D& cam) {
 	}
 
 	auto u = std::make_unique<EnemyUnit>(spawnPos, Vector3{ 1,1,1 }, RED);
+	u->team = 1;
 	allUnits.push_back(u.get());
 	enemies.push_back(std::move(u));
 }
@@ -143,41 +201,47 @@ void World::SpawnEnemy(Camera3D& cam) {
 void World::KillUnitInFront(Camera3D& cam) {
 	Ray ray = { cam.position, Vector3Normalize(Vector3Subtract(cam.target, cam.position)) };
 
-	Unit* toDelete = nullptr;
-	float closest = 99999.0f;
+	Unit* target = nullptr;
+	float closest = 1e9f;
 
 	for (Unit* u : allUnits) {
 		RayCollision hit = GetRayCollisionBox(ray, u->box);
 		if (hit.hit && hit.distance < closest) {
 			closest = hit.distance;
-			toDelete = u;
+			target = u;
 		}
 	}
 
-	if (!toDelete) return;
-
-	// remove from allUnits
-	allUnits.erase(
-		std::remove(allUnits.begin(), allUnits.end(), toDelete),
-		allUnits.end()
-	);
+	if (!target) return;
 
 	// remove from allies (owner)
-	for (size_t i = 0; i < allies.size(); i++) {
-		if (allies[i].get() == toDelete) {
-			allies.erase(allies.begin() + i);
-			return;
-		}
+	auto aIt = std::find_if(allies.begin(), allies.end(),
+		[&](const std::unique_ptr<AllyUnit>& p) { return p.get() == target; });
+
+	if (aIt != allies.end()) {
+		allies.erase(aIt);
+		RefreshAllUnits();
+		return;
 	}
 
 	// remove from enemies (owner)
-	for (size_t i = 0; i < enemies.size(); i++) {
-		if (enemies[i].get() == toDelete) {
-			enemies.erase(enemies.begin() + i);
-			return;
-		}
+	auto eIt = std::find_if(enemies.begin(), enemies.end(),
+		[&](const std::unique_ptr<EnemyUnit>& p) { return p.get() == target; });
+
+	if (eIt != enemies.end()) {
+		enemies.erase(eIt);
+		RefreshAllUnits();
+		return;
 	}
 }
+
+void World::RefreshAllUnits()
+{
+	allUnits.clear();
+	for (auto& a : allies) allUnits.push_back(a.get());
+	for (auto& e : enemies) allUnits.push_back(e.get());
+}
+
 
 bool World::IsSpaceFree(Vector3 pos, Vector3 size) {
 	BoundingBox box = {
@@ -192,3 +256,4 @@ bool World::IsSpaceFree(Vector3 pos, Vector3 size) {
 
 	return true;
 }
+

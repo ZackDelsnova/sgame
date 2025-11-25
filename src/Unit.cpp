@@ -37,6 +37,10 @@ void Unit::Update(float dt) {
 	// physics
 	ApplyGravity(dt);
 
+	if (attackTimer > 0.0f) {
+		attackTimer -= dt;
+	}
+
 	UpdateAI(dt);
 
 	switch (state)

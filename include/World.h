@@ -17,7 +17,7 @@ public:
 	void SpawnAlly(Camera3D& cam);
 	void SpawnEnemy(Camera3D& cam);
 	void KillUnitInFront(Camera3D& cam);
-
+	void RefreshAllUnits();
 	bool IsSpaceFree(Vector3 pos, Vector3 size);
 
 	std::string GetAllyUnitCount() {
