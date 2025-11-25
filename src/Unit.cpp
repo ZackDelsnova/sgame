@@ -41,6 +41,16 @@ void Unit::Update(float dt) {
 		attackTimer -= dt;
 	}
 
+	float pct = hp / maxHP;
+	pct = Clamp(pct, 0.0f, 1.0f);
+
+	renderColor = {
+		(unsigned char)(baseColor.r * (0.4f + 0.6f * pct)),
+		(unsigned char)(baseColor.g * (0.4f + 0.6f * pct)),
+		(unsigned char)(baseColor.b * (0.4f + 0.6f * pct)),
+		255
+	};
+
 	UpdateAI(dt);
 
 	switch (state)

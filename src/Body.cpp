@@ -4,6 +4,8 @@ Body::Body(Vector3 pos, Vector3 s, Color col) {
 	position = pos;
 	size = s;
 	color = col;
+	baseColor = col;
+	renderColor = col;
 	UpdateBoundingBox();
 }
 
@@ -26,6 +28,6 @@ void Body::Update(float dt) {
 }
 
 void Body::Draw() const {
-	DrawCubeV(position, size, color);
+	DrawCubeV(position, size, renderColor);
 	DrawBoundingBox(box, borderColor);
 }

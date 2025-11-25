@@ -36,4 +36,5 @@ private:
 	std::vector<std::unique_ptr<EnemyUnit>> enemies;
 
 	Vector3 cameraFollowPoint = Vector3{ 0,0,0 };
+	Unit* selectedUnit = nullptr;
 };

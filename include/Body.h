@@ -7,6 +7,8 @@ public:
 	Vector3 position;
 	Vector3 size;
 	Color color;
+	Color baseColor;
+	Color renderColor;
 	BoundingBox box;
 	Color borderColor = YELLOW;
 
