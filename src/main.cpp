@@ -137,7 +137,8 @@ int main() {
 
 			DrawFPS(10, 10);
 			DrawText(cameraCtrl.GetCompassDirection().c_str(), 10, 40, 20, DARKGRAY);
-			DrawText(world.GetUnitCount().c_str(), 10, 70, 20, DARKGRAY);
+			DrawText(world.GetAllyUnitCount().c_str(), 10, 70, 20, BLUE);
+			DrawText(world.GetEnemyUnitCount().c_str(), 10, 90, 20, RED);
 
 		} break;
 			

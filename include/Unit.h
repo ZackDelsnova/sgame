@@ -22,7 +22,7 @@ public:
 	int team = 0; // temp team allocation 0 - ally, 1 - enemy
 
 	// movement
-	Vector3 targetPoint;
+	Vector3 targetPoint = Vector3{ 0,0,0 };
 	Body* targetBody = nullptr;
 	UnitState state = UnitState::Idle;
 
@@ -34,6 +34,8 @@ public:
 
 	void Update(float dt) override;
 	void MoveTowards(Vector3 point, float dt);
+
+	virtual void UpdateAI(float dt);
 
 	void Attack(Unit* other);
 
