@@ -91,3 +91,23 @@ void Unit::TakeDamage(float amt) {
 		color = GRAY;
 	}
 }
+
+bool Unit::TryAttack(Unit* other) {
+	
+	float distSq = GetDistance(other->position);
+
+	if (distSq + 5.0f < (attackRange * attackRange)) {
+		targetBody = nullptr;
+		Attack(other);
+		return true;
+	}
+	return false;
+}
+
+float Unit::GetDistance(Vector3 pos) {
+	float dx = position.x - pos.x;
+	float dy = position.y - pos.y;
+	float dz = position.z - pos.z;
+
+	return dx * dx + dy * dy + dz * dz;
+}

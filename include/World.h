@@ -10,6 +10,10 @@
 
 class World {
 public:
+	Vector3 floorPos = { 0.0f, -0.5f,0.0f };
+
+	bool followCamera = false;
+
 	void Init();
 	void Update(float dt, Camera3D& cam);
 	void Draw();
@@ -17,6 +21,7 @@ public:
 	void SpawnAlly(Camera3D& cam);
 	void SpawnEnemy(Camera3D& cam);
 	void KillUnitInFront(Camera3D& cam);
+	void KillUnit(Unit* target);
 	void RefreshAllUnits();
 	bool IsSpaceFree(Vector3 pos, Vector3 size);
 
@@ -36,5 +41,4 @@ private:
 	std::vector<std::unique_ptr<EnemyUnit>> enemies;
 
 	Vector3 cameraFollowPoint = Vector3{ 0,0,0 };
-	Unit* selectedUnit = nullptr;
 };

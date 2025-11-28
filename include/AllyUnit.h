@@ -3,18 +3,17 @@
 
 class AllyUnit : public Unit {
 public:
-	AllyUnit(Vector3 pos, Vector3 s, Color col)
-		: Unit(pos, s, col) {}
+	AllyUnit(Vector3 pos, Vector3 s, Color col);
 
 	Vector3* followPos = nullptr;
 
-	void SetFollowPoint(Vector3* p) { followPos = p; }
+	UnitState prevState = UnitState::Idle;
+	Vector3 prevTargetPoint = { 0,0,0 };
+	Body* prevTargetBody = nullptr;
+
+	void SetFollowPoint(Vector3* p);
+	void ClearFollowPoint();
 
 protected:
-	void UpdateAI(float dt) override {
-		dt = dt;
-		if (followPos) {
-			SetMoveTarget(*followPos);
-		}
-	}
+	void UpdateAI(float dt) override;
 };

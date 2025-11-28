@@ -4,7 +4,7 @@ void World::Init() {
 	
 	// ground
 	auto floor = std::make_unique<StaticBody>(
-		Vector3{ 0, -0.5f, 0 }, Vector3{ 2000, 1, 2000 }, DARKGREEN
+		floorPos, Vector3{ 2000, 1, 2000 }, DARKGREEN
 	);
 	floor->isGround = true;
 
@@ -18,15 +18,27 @@ void World::Init() {
 
 void World::Update(float dt, Camera3D& cam) {
 
-	// forward point from camera
-	Vector3 forward = Vector3Normalize(Vector3Subtract(cam.target, cam.position));
-	cameraFollowPoint = Vector3Add(cam.position, Vector3Scale(forward, 5.0f));
-	cameraFollowPoint.y = -0.5f;
+	if (IsKeyPressed(KEY_TAB)) {
+		followCamera = !followCamera;
+
+		if (!followCamera) {
+			for (auto& a : allies) {
+				a->ClearFollowPoint();	
+			}
+		}
+	}
 
 	// allies update
 	for (auto& a : allies) {
-		a->SetFollowPoint(&cameraFollowPoint);
+		if (followCamera) {
+			// forward point from camera
+			Vector3 forward = Vector3Normalize(Vector3Subtract(cam.target, cam.position));
+			cameraFollowPoint = Vector3Add(cam.position, Vector3Scale(forward, 5.0f));
+			cameraFollowPoint.y = -0.5f;
+			a->SetFollowPoint(&cameraFollowPoint);
+		}
 		a->Update(dt);
+		if (a->position.y <= floorPos.y) KillUnit(a.get());
 
 		// collide with world
 		for (auto& st : staticObjects) {
@@ -41,6 +53,7 @@ void World::Update(float dt, Camera3D& cam) {
 	for (auto& e : enemies) {
 		// assign target aferwards
 		e->Update(dt);
+		if (e->position.y <= floorPos.y) KillUnit(e.get());
 
 		// collide with world
 		for (auto& st : staticObjects) {
@@ -89,15 +102,9 @@ void World::Update(float dt, Camera3D& cam) {
 		for (auto& e : enemies) {
 			if (!e->isAlive()) continue;
 
-			// distance check
-			float dx = a->position.x - e->position.x;
-			float dy = a->position.y - e->position.y;
-			float dz = a->position.z - e->position.z;
-
-			float distSq = dx * dx + dy * dy + dz * dz;
-
-			if (distSq < (a->attackRange * a->attackRange)) {
-				a->Attack(e.get());
+			if (!a->TryAttack(e.get())) {
+				if (!a->targetBody && a->GetDistance(e.get()->position) < a->chaseRange)
+					a->SetChaseTarget(e.get());
 			}
 		}
 	}
@@ -109,14 +116,9 @@ void World::Update(float dt, Camera3D& cam) {
 		for (auto& a : allies) {
 			if (!a->isAlive()) continue;
 
-			float dx = e->position.x - a->position.x;
-			float dy = e->position.y - a->position.y;
-			float dz = e->position.z - a->position.z;
-
-			float distSq = dx * dx + dy * dy + dz * dz;
-
-			if (distSq < (e->attackRange * e->attackRange)) {
-				e->Attack(a.get());
+			if (!e->TryAttack(a.get())) {
+				if (!e->targetBody && e->GetDistance(a.get()->position) < e->chaseRange)  
+					e->SetChaseTarget(a.get());
 			}
 		}
 	}
@@ -134,10 +136,8 @@ void World::Update(float dt, Camera3D& cam) {
 		enemies.end()
 	);
 
-	allUnits.clear();
-	allUnits.reserve(allies.size() + enemies.size());
-	for (auto& a : allies)  allUnits.push_back(a.get());
-	for (auto& e : enemies) allUnits.push_back(e.get());
+	RefreshAllUnits();
+
 }
 
 void World::Draw() {
@@ -193,6 +193,7 @@ void World::SpawnEnemy(Camera3D& cam) {
 	}
 
 	auto u = std::make_unique<EnemyUnit>(spawnPos, Vector3{ 1,1,1 }, RED);
+	u->chaseRange = 2000.0f;
 	u->team = 1;
 	allUnits.push_back(u.get());
 	enemies.push_back(std::move(u));
@@ -212,6 +213,10 @@ void World::KillUnitInFront(Camera3D& cam) {
 		}
 	}
 
+	KillUnit(target);
+}
+
+void World::KillUnit(Unit* target) {
 	if (!target) return;
 
 	// remove from allies (owner)
@@ -238,6 +243,7 @@ void World::KillUnitInFront(Camera3D& cam) {
 void World::RefreshAllUnits()
 {
 	allUnits.clear();
+	allUnits.reserve(allies.size() + enemies.size());
 	for (auto& a : allies) allUnits.push_back(a.get());
 	for (auto& e : enemies) allUnits.push_back(e.get());
 }

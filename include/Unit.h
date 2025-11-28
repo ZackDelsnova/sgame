@@ -19,9 +19,11 @@ public:
 	float moveSpeed = 5.0f;
 	
 	float attack = 10.0f;
-	float attackRange = 2.0f;
+	float attackRange = 3.0f;
 	float attackCooldown = 0.6f;
 	float attackTimer = 0.0f;
+
+	float chaseRange = 100.0f;
 	
 	int team = 0; // temp team allocation 0 - ally, 1 - enemy
 
@@ -42,8 +44,10 @@ public:
 	virtual void UpdateAI(float dt);
 
 	void Attack(Unit* other);
-
+	bool TryAttack(Unit* other);
 	void TakeDamage(float amt);
+
+	float GetDistance(Vector3 pos);
 
 	bool isAlive() const { return hp > 0;  }
 
