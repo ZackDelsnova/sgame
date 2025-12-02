@@ -85,7 +85,8 @@ void Unit::Attack(Unit* other) {
 	if (!other->isAlive()) return;
 
 	attackTimer = attackCooldown;
-	other->TakeDamage(attack);
+	float dmg = ComputeDamage(attack);
+	other->TakeDamage(dmg);
 }
 
 void Unit::TakeDamage(float amt) {
@@ -106,6 +107,15 @@ bool Unit::TryAttack(Unit* other) {
 		return true;
 	}
 	return false;
+}
+
+bool Unit::RollCrit() {
+	return (GetRandomValue(0, 10000) / 10000.0f) < critChance;
+}
+
+float Unit::ComputeDamage(float baseDamage) {
+	if (RollCrit()) return baseDamage * critMultiplier;
+	return baseDamage;
 }
 
 float Unit::GetDistance(Vector3 pos) {

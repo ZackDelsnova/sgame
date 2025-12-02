@@ -14,7 +14,7 @@ class Unit : public DynamicBody {
 public:
 	// stats
 	float maxHP = 100.0f;
-	float hp = 100.0f;
+	float hp = maxHP;
 
 	float moveSpeed = 5.0f;
 	
@@ -24,6 +24,9 @@ public:
 	float attackTimer = 0.0f;
 
 	float chaseRange = 100.0f;
+
+	float critChance = 0.05f; // 5%
+	float critMultiplier = 2.0f;
 	
 	int team = 0; // temp team allocation 0 - ally, 1 - enemy
 
@@ -46,8 +49,12 @@ public:
 	void Attack(Unit* other);
 	bool TryAttack(Unit* other);
 	void TakeDamage(float amt);
+	bool RollCrit();
+	float ComputeDamage(float dmg);
 
 	float GetDistance(Vector3 pos);
+
+	virtual float GetXpWorth() const { return 0; }
 
 	bool isAlive() const { return hp > 0;  }
 

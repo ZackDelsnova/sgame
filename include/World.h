@@ -7,6 +7,9 @@
 #include "Unit.h"
 #include "AllyUnit.h"
 #include "EnemyUnit.h"
+#include "Player.h"
+
+#include <iostream>
 
 class World {
 public:
@@ -20,13 +23,14 @@ public:
 	int minSpawn = 2;
 	int maxSpawn = 5;
 
+	Player* player = nullptr;
+
 	void Init();
 	void Update(float dt, Camera3D& cam);
 	void Draw();
 
 	void SpawnAlly(Camera3D& cam);
 	void SpawnEnemy(Camera3D& cam);
-	void KillUnitInFront(Camera3D& cam);
 	void KillUnit(Unit* target);
 	void RefreshAllUnits();
 	bool IsSpaceFree(Vector3 pos, Vector3 size);
@@ -60,6 +64,10 @@ public:
 		Init();
 
 		RefreshAllUnits();
+	}
+
+	void SetPlayer(Player* p) {
+		player = p;
 	}
 
 private:

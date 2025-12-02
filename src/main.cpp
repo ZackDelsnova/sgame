@@ -9,6 +9,7 @@ typedef enum {
 	STATE_MENU,
 	STATE_GAME,
 	STATE_PAUSE,
+	STATE_UPGRADE_MENU,
 	STATE_GAMEOVER
 } GameState;
 
@@ -59,9 +60,11 @@ int main() {
 	GameState currentState = STATE_MENU;
 
 	CameraController cameraCtrl;
+	Player player;
 
 	World world;
 	world.Init();
+	world.SetPlayer(&player);
 
 	while (!WindowShouldClose()) {
 
@@ -112,16 +115,15 @@ int main() {
 
 			ClearBackground(SKYBLUE);
 
+			if (player.upgradePending) {
+				cameraCtrl.UnlockMouse();
+				currentState = STATE_UPGRADE_MENU;
+				break;
+			}
+
 			cameraCtrl.Update(dt);
 
 			BeginMode3D(cameraCtrl.camera);
-
-			if (IsKeyPressed(KEY_ONE)) {
-				world.SpawnAlly(cameraCtrl.camera);
-			}
-			if (IsKeyPressed(KEY_TWO)) {
-				world.KillUnitInFront(cameraCtrl.camera);
-			}
 
 			world.Update(dt, cameraCtrl.camera);
 			world.Draw();
@@ -137,6 +139,7 @@ int main() {
 			DrawText(world.GetAllyUnitCount().c_str(), 10, 70, 20, BLUE);
 			DrawText(world.GetEnemyUnitCount().c_str(), 10, 90, 20, RED);
 			DrawText(world.GetSpawnTimer().c_str(), 10, 110, 20, BLACK);
+			DrawText(player.GetLevel().c_str(), 10, 130, 20, GREEN);
 
 			if (world.GameOver()) {
 				cameraCtrl.UnlockMouse();
@@ -174,6 +177,56 @@ int main() {
 				currentState = STATE_MENU;
 			}
 			
+		} break;
+		case STATE_UPGRADE_MENU: {
+			ClearBackground(SKYBLUE);
+
+			cameraCtrl.Update(0); // no movement
+			BeginMode3D(cameraCtrl.camera);
+			world.Draw();         // draw static world (no Update)
+			EndMode3D();
+
+			// Draw crosshair and HUD dimmed
+			DrawText(cameraCtrl.GetCompassDirection().c_str(), 10, 40, 20, DARKGRAY);
+			DrawText(world.GetAllyUnitCount().c_str(), 10, 70, 20, BLUE);
+			DrawText(world.GetEnemyUnitCount().c_str(), 10, 90, 20, RED);
+			DrawText(world.GetSpawnTimer().c_str(), 10, 110, 20, BLACK);
+			DrawText(player.GetLevel().c_str(), 10, 130, 20, GREEN);
+
+			// Dark overlay
+			DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.6f));
+
+			// Upgrade cards
+			int y = 200;
+
+			for (int i = 0; i < player.offeredUpgrades.size(); i++) {
+				auto& opt = player.offeredUpgrades[i];
+
+				Rectangle r{ 200, (float)y, 400, 60 };
+				std::string label;
+
+				if (opt.type == Player::UpgradeOption::GET_NEW_ALLY)
+					label = "Summon New Ally";
+				else {
+					switch (opt.type) {
+					case Player::UpgradeOption::INCREASE_ATTACK: label = "Increase Attack"; break;
+					case Player::UpgradeOption::DECREASE_ATTACK_SPEED: label = "Faster Attack Speed"; break;
+					case Player::UpgradeOption::INCREASE_RANGE: label = "Increase Range"; break;
+					case Player::UpgradeOption::INCREASE_CRIT_CHANCE: label = "Increase Crit Chance"; break;
+					case Player::UpgradeOption::INCREASE_CRIT_DAMAGE: label = "Increase Crit Damage"; break;
+					}
+					label += " (Unit)";
+				}
+
+				if (Button(r, label.c_str())) {
+					player.ApplyUpgrade(opt, &world, cameraCtrl.camera);
+
+					cameraCtrl.LockMouse();
+					currentState = STATE_GAME;
+				}
+
+				y += 90;
+			}
 		} break;
 		}
 		EndDrawing();

@@ -1,4 +1,5 @@
 #include "World.h"
+#include<iostream>
 
 void World::Init() {
 	
@@ -141,6 +142,8 @@ void World::Update(float dt, Camera3D& cam) {
 		}
 	}
 
+	RefreshAllUnits();
+
 	// remove if dead
 	allies.erase(
 		std::remove_if(allies.begin(), allies.end(),
@@ -154,7 +157,13 @@ void World::Update(float dt, Camera3D& cam) {
 		enemies.end()
 	);
 
-	RefreshAllUnits();
+	if (player) {
+		player->SetAllyList(allies);
+	}
+
+	if (player) {
+		player->CheckLevelUp();
+	}
 
 }
 
@@ -219,28 +228,13 @@ void World::SpawnEnemy(Camera3D& cam) {
 		}
 
 		auto u = std::make_unique<EnemyUnit>(spawnPos, Vector3{ 1,1,1 }, RED);
+		u->maxHP = 10.0f;
+		u->hp = u->maxHP;
 		u->chaseRange = 2000.0f;
 		u->team = 1;
 		allUnits.push_back(u.get());
 		enemies.push_back(std::move(u));
 	}
-}
-
-void World::KillUnitInFront(Camera3D& cam) {
-	Ray ray = { cam.position, Vector3Normalize(Vector3Subtract(cam.target, cam.position)) };
-
-	Unit* target = nullptr;
-	float closest = 1e9f;
-
-	for (Unit* u : allUnits) {
-		RayCollision hit = GetRayCollisionBox(ray, u->box);
-		if (hit.hit && hit.distance < closest) {
-			closest = hit.distance;
-			target = u;
-		}
-	}
-
-	KillUnit(target);
 }
 
 void World::KillUnit(Unit* target) {
@@ -269,6 +263,7 @@ void World::KillUnit(Unit* target) {
 
 void World::RefreshAllUnits()
 {
+
 	allUnits.clear();
 	allUnits.reserve(allies.size() + enemies.size());
 	for (auto& a : allies) allUnits.push_back(a.get());
@@ -276,15 +271,21 @@ void World::RefreshAllUnits()
 
 	for (Unit* u : allUnits) {
 		if (!u->isAlive()) {
+
 			for (Unit* other : allUnits) {
-				if (other->targetBody == u) {
+				if (other->targetBody == u)
 					other->targetBody = nullptr;
+			}
+
+			if (player && u->team == 1) { // only enemies give XP
+				float xp = static_cast<EnemyUnit*>(u)->xpWorth;
+				if (xp > 0) {
+					player->GainXpOnly(xp);
 				}
 			}
 		}
 	}
 }
-
 
 bool World::IsSpaceFree(Vector3 pos, Vector3 size) {
 	BoundingBox box = {
