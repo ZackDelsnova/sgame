@@ -14,9 +14,27 @@ void World::Init() {
 	dynamicObjects.push_back(std::make_unique<DynamicBody>(
 		Vector3{ 0, 10, 0 }, Vector3{ 1, 1, 1 }, ORANGE));
 
+	auto u = std::make_unique<AllyUnit>(Vector3{2, 0, 2}, Vector3{1,1,1}, BLUE);
+	u->team = 0;
+	allUnits.push_back(u.get());
+	allies.push_back(std::move(u));
+
+	spawnRadius = 20.0f;
+	minSpawn = 2;
+	maxSpawn = 5;
+	spawnInterval = 10.0f;
+	spawnTimer = spawnInterval;
 }
 
 void World::Update(float dt, Camera3D& cam) {
+
+	if (spawnTimer <= 0.0f) {
+		SpawnEnemy(cam);
+		spawnTimer = spawnInterval;
+	}
+	else {
+		spawnTimer -= dt;
+	}
 
 	if (IsKeyPressed(KEY_TAB)) {
 		followCamera = !followCamera;
@@ -181,22 +199,31 @@ void World::SpawnAlly(Camera3D& cam) {
 }
 
 void World::SpawnEnemy(Camera3D& cam) {
-	Vector3 forward = Vector3Normalize(Vector3Subtract(cam.target, cam.position));
 
-	Vector3 spawnPos = Vector3Add(cam.position, Vector3Scale(forward, 5.0f));
+	int count = minSpawn + (rand() % (maxSpawn - minSpawn + 1));
 
-	if (!IsSpaceFree(spawnPos, { 1,1,1 })) {
-		for (int i = 0; i < 10; i++) {
-			spawnPos.z += 0.5f;
-			if (IsSpaceFree(spawnPos, { 1,1,1 })) break;
+	for (int i = 0; i < count; i++)
+	{
+		float angle = static_cast<float>(rand()) / RAND_MAX * 6.283185f; // 0 - 2pi
+		float dist = static_cast<float>(rand()) / RAND_MAX * spawnRadius;
+
+		Vector3 spawnPos = cam.position;
+		spawnPos.x += static_cast<float>(cos(angle)) * dist;
+		spawnPos.z += static_cast<float>(sin(angle)) * dist;
+
+		if (!IsSpaceFree(spawnPos, { 1,1,1 })) {
+			for (int j = 0; j < 10; j++) {
+				spawnPos.z += 0.5f;
+				if (IsSpaceFree(spawnPos, { 1,1,1 })) break;
+			}
 		}
-	}
 
-	auto u = std::make_unique<EnemyUnit>(spawnPos, Vector3{ 1,1,1 }, RED);
-	u->chaseRange = 2000.0f;
-	u->team = 1;
-	allUnits.push_back(u.get());
-	enemies.push_back(std::move(u));
+		auto u = std::make_unique<EnemyUnit>(spawnPos, Vector3{ 1,1,1 }, RED);
+		u->chaseRange = 2000.0f;
+		u->team = 1;
+		allUnits.push_back(u.get());
+		enemies.push_back(std::move(u));
+	}
 }
 
 void World::KillUnitInFront(Camera3D& cam) {
@@ -246,6 +273,16 @@ void World::RefreshAllUnits()
 	allUnits.reserve(allies.size() + enemies.size());
 	for (auto& a : allies) allUnits.push_back(a.get());
 	for (auto& e : enemies) allUnits.push_back(e.get());
+
+	for (Unit* u : allUnits) {
+		if (!u->isAlive()) {
+			for (Unit* other : allUnits) {
+				if (other->targetBody == u) {
+					other->targetBody = nullptr;
+				}
+			}
+		}
+	}
 }
 
 

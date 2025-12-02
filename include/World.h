@@ -14,6 +14,12 @@ public:
 
 	bool followCamera = false;
 
+	float spawnInterval = 10.0f;
+	float spawnTimer = spawnInterval;
+	float spawnRadius = 20.0f;
+	int minSpawn = 2;
+	int maxSpawn = 5;
+
 	void Init();
 	void Update(float dt, Camera3D& cam);
 	void Draw();
@@ -29,8 +35,31 @@ public:
 		return std::to_string(allies.size());
 	}
 
+	bool GameOver() {
+		return allies.size() <= 0;
+	}
+
 	std::string GetEnemyUnitCount() {
 		return std::to_string(enemies.size());
+	}
+
+	std::string GetSpawnTimer() {
+		return std::to_string(spawnTimer);
+	}
+
+	void Reset() {
+		allies.clear();
+		enemies.clear();
+		dynamicObjects.clear();
+		staticObjects.clear();
+		allUnits.clear();
+
+		followCamera = false;
+		cameraFollowPoint = { 0,0,0 };
+
+		Init();
+
+		RefreshAllUnits();
 	}
 
 private:

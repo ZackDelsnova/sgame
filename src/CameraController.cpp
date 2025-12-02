@@ -23,6 +23,14 @@ CameraController::CameraController() {
 	mouseCaptured = true;
 }
 
+void CameraController::Reset() {
+	camera = { 0 };
+	camera.position = { 0.0f, 2.0f, 6.0f };
+	camera.target = { 0.0f, 1.5f, 0.0f };
+	camera.up = { 0.0f, 1.0f, 0.0f };
+	camera.fovy = defaultFOV;
+}
+
 void CameraController::LockMouse() {
 	mouseCaptured = true;
 	DisableCursor();

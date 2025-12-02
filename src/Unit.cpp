@@ -10,8 +10,8 @@ void Unit::SetMoveTarget(Vector3 point) {
 	targetBody = nullptr;
 }
 
-void Unit::SetChaseTarget(Body* body) {
-	targetBody = body;
+void Unit::SetChaseTarget(Unit* target) {
+	targetBody = target;
 	state = UnitState::ChasingTarget;
 }
 
@@ -61,8 +61,12 @@ void Unit::Update(float dt) {
 		MoveTowards(targetPoint, dt);
 		break;
 	case UnitState::ChasingTarget:
-		if (targetBody) {
+		if (targetBody && targetBody->isAlive()) {
 			MoveTowards(targetBody->position, dt);
+		}
+		else {
+			targetBody = nullptr;
+			state = UnitState::Idle;
 		}
 		break;
 	default:

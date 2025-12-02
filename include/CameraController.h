@@ -27,4 +27,6 @@ public:
 	void LockMouse();
 	void UnlockMouse();
 	std::string GetCompassDirection() const;
+
+	void Reset();
 };

@@ -8,7 +8,8 @@
 typedef enum {
 	STATE_MENU,
 	STATE_GAME,
-	STATE_PAUSE
+	STATE_PAUSE,
+	STATE_GAMEOVER
 } GameState;
 
 bool Button(Rectangle bounds, const char* text) {
@@ -119,12 +120,8 @@ int main() {
 				world.SpawnAlly(cameraCtrl.camera);
 			}
 			if (IsKeyPressed(KEY_TWO)) {
-				world.SpawnEnemy(cameraCtrl.camera);
-			}
-			if (IsKeyPressed(KEY_THREE)) {
 				world.KillUnitInFront(cameraCtrl.camera);
 			}
-		
 
 			world.Update(dt, cameraCtrl.camera);
 			world.Draw();
@@ -139,9 +136,14 @@ int main() {
 			DrawText(cameraCtrl.GetCompassDirection().c_str(), 10, 40, 20, DARKGRAY);
 			DrawText(world.GetAllyUnitCount().c_str(), 10, 70, 20, BLUE);
 			DrawText(world.GetEnemyUnitCount().c_str(), 10, 90, 20, RED);
+			DrawText(world.GetSpawnTimer().c_str(), 10, 110, 20, BLACK);
 
+			if (world.GameOver()) {
+				cameraCtrl.UnlockMouse();
+				currentState = STATE_GAMEOVER;
+			}
 		} break;
-			
+
 		case STATE_PAUSE: {
 			DrawText("Paused", 350, 100, 30, RAYWHITE);
 
@@ -155,13 +157,27 @@ int main() {
 			}
 
 			DrawText("1 - Spawn Ally (Blue cube)", 550, 250, 30, RAYWHITE);
-			DrawText("2 - Spawn Enemy (Red cube)", 550, 350, 30, RAYWHITE);
-			DrawText("3 - Kill Units (any ally and enemy)", 550, 450, 30, RAYWHITE);
+			DrawText("2 - Kill Units (any ally and enemy)", 550, 350, 30, RAYWHITE);
+		} break;
+
+		case STATE_GAMEOVER: {
+			DrawText("Paused", 350, 100, 30, RED);
+
+			if (Button(Rectangle{ 300, 250, 200, 50 }, "Try Again")) {
+				world.Reset();
+				cameraCtrl.Reset();
+				cameraCtrl.LockMouse();
+				currentState = STATE_GAME;
+			}
+
+			if (Button(Rectangle{ 600, 250, 200, 50 }, "Quit")) {
+				currentState = STATE_MENU;
+			}
+			
 		} break;
 		}
 		EndDrawing();
 	}
-
 	CloseWindow();
 	return 0;
 }

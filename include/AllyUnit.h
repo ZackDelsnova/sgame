@@ -9,7 +9,7 @@ public:
 
 	UnitState prevState = UnitState::Idle;
 	Vector3 prevTargetPoint = { 0,0,0 };
-	Body* prevTargetBody = nullptr;
+	Unit* prevTargetBody = nullptr;
 
 	void SetFollowPoint(Vector3* p);
 	void ClearFollowPoint();

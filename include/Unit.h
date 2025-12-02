@@ -29,14 +29,14 @@ public:
 
 	// movement
 	Vector3 targetPoint = { 0.0f,0.0f, 0.0f };
-	Body* targetBody = nullptr;
+	Unit* targetBody = nullptr;
 	UnitState state = UnitState::Idle;
 
 	Unit(Vector3 pos, Vector3 s, Color col);
 
 	// stuff needed in future for child classes
 	void SetMoveTarget(Vector3 point);
-	void SetChaseTarget(Body* body);
+	void SetChaseTarget(Unit* target);
 
 	void Update(float dt) override;
 	void MoveTowards(Vector3 point, float dt);
