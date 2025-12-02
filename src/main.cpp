@@ -158,9 +158,6 @@ int main() {
 			if (Button(Rectangle{ 300, 330, 200, 50 }, "Bact to Menu")) {
 				currentState = STATE_MENU;
 			}
-
-			DrawText("1 - Spawn Ally (Blue cube)", 550, 250, 30, RAYWHITE);
-			DrawText("2 - Kill Units (any ally and enemy)", 550, 350, 30, RAYWHITE);
 		} break;
 
 		case STATE_GAMEOVER: {
